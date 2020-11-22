@@ -58,7 +58,14 @@ public class DIYWebhookNotificationPlugin implements NotificationPlugin{
     		description = "The content type header. Example: application/json",
     		required = false)
     private String contentType;
-    
+	
+    @PluginProperty(
+    		name = "authorization",
+    		title = "Authorization",
+    		description = "The authorization header. Example: Bearer xxxxxxxxx",
+    		required = false)
+    private String authorization;
+
     @PluginProperty(
     		name = "messageBody",
     		title = "Message Body",
@@ -158,7 +165,7 @@ public class DIYWebhookNotificationPlugin implements NotificationPlugin{
         return theNewMessage;
 	}
     
-	private String sendMessage(String theWebhookUrl, String theContentType, String theFormattedMessage) throws IOException, CustomMessageException {
+	private String sendMessage(String theWebhookUrl, String theContentType, String theAuthorization, String theFormattedMessage) throws IOException, CustomMessageException {
 		
 		HttpURLConnection connectionToWebhook = (HttpURLConnection) new URL(theWebhookUrl).openConnection();
 		
@@ -166,6 +173,7 @@ public class DIYWebhookNotificationPlugin implements NotificationPlugin{
 		connectionToWebhook.setReadTimeout(5000);
 		connectionToWebhook.setRequestMethod("POST");
 		connectionToWebhook.setRequestProperty("Content-type", theContentType);
+		connectionToWebhook.setRequestProperty("Authorization", theAuthorization);
 		connectionToWebhook.setDoOutput(true);
 		
 		DataOutputStream bodyOfRequest = new DataOutputStream(connectionToWebhook.getOutputStream());
@@ -191,7 +199,7 @@ public class DIYWebhookNotificationPlugin implements NotificationPlugin{
     	try
     	{
     		String formattedMessage = formatMessage(messageBody,executionData);	
-    		sendMessage(webhookUrl,contentType,formattedMessage);
+    		sendMessage(webhookUrl,contentType, authorization,formattedMessage);
     	}
 		catch ( SecurityException | IllegalArgumentException | CustomMessageException | IOException e)
 		{
